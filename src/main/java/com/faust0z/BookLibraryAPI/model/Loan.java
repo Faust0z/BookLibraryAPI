@@ -1,8 +1,9 @@
-package com.faust0z.proj6.model;
+package com.faust0z.BookLibraryAPI.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
 import java.time.LocalDate;
 import java.util.UUID;
 

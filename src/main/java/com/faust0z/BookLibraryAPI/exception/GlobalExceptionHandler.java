@@ -1,4 +1,4 @@
-package com.faust0z.proj6.exception;
+package com.faust0z.BookLibraryAPI.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;

@@ -1,4 +1,4 @@
-package com.faust0z.proj6.exception;
+package com.faust0z.BookLibraryAPI.exception;
 
 public class BookUnavailableException extends RuntimeException {
     public BookUnavailableException(String message) {

@@ -1,8 +1,8 @@
-package com.faust0z.proj6.controller;
+package com.faust0z.BookLibraryAPI.controller;
 
-import com.faust0z.proj6.dto.CreateUserDTO;
-import com.faust0z.proj6.dto.UserDTO;
-import com.faust0z.proj6.service.UserService;
+import com.faust0z.BookLibraryAPI.dto.CreateUserDTO;
+import com.faust0z.BookLibraryAPI.dto.UserDTO;
+import com.faust0z.BookLibraryAPI.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

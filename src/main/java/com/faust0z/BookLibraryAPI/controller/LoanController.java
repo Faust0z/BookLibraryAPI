@@ -1,8 +1,8 @@
-package com.faust0z.proj6.controller;
+package com.faust0z.BookLibraryAPI.controller;
 
-import com.faust0z.proj6.dto.CreateLoanDTO;
-import com.faust0z.proj6.dto.LoanDTO;
-import com.faust0z.proj6.service.LoanService;
+import com.faust0z.BookLibraryAPI.dto.CreateLoanDTO;
+import com.faust0z.BookLibraryAPI.dto.LoanDTO;
+import com.faust0z.BookLibraryAPI.service.LoanService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

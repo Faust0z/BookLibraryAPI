@@ -1,4 +1,4 @@
-package com.faust0z.proj6.dto;
+package com.faust0z.BookLibraryAPI.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;

@@ -1,10 +1,11 @@
-package com.faust0z.proj6.service;
+package com.faust0z.BookLibraryAPI.service;
 
-import com.faust0z.proj6.dto.BookDTO;
-import com.faust0z.proj6.dto.CreateBookDTO;
-import com.faust0z.proj6.model.Book;
-import com.faust0z.proj6.repository.BookRepository;
+import com.faust0z.BookLibraryAPI.dto.BookDTO;
+import com.faust0z.BookLibraryAPI.dto.CreateBookDTO;
+import com.faust0z.BookLibraryAPI.model.Book;
+import com.faust0z.BookLibraryAPI.repository.BookRepository;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,6 +20,7 @@ public class BookService {
 
     /**
      * Retrieves all books from the database.
+     *
      * @return A list of all books as BookDTOs.
      */
     public List<BookDTO> getAllBooks() {
@@ -30,6 +32,7 @@ public class BookService {
 
     /**
      * Creates a new book and saves it to the database.
+     *
      * @param bookDTO The DTO containing the new book's data.
      * @return The created book's data as a DTO.
      */

@@ -1,6 +1,6 @@
-package com.faust0z.proj6.repository;
+package com.faust0z.BookLibraryAPI.repository;
 
-import com.faust0z.proj6.model.Loan;
+import com.faust0z.BookLibraryAPI.model.Loan;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

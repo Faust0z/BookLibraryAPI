@@ -1,6 +1,7 @@
-package com.faust0z.proj6.dto;
+package com.faust0z.BookLibraryAPI.dto;
 
 import lombok.Data;
+
 import java.time.LocalDate;
 import java.util.UUID;
 

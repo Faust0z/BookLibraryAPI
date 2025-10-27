@@ -1,12 +1,13 @@
-package com.faust0z.proj6.controller;
+package com.faust0z.BookLibraryAPI.controller;
 
-import com.faust0z.proj6.dto.BookDTO;
-import com.faust0z.proj6.dto.CreateBookDTO;
-import com.faust0z.proj6.service.BookService;
+import com.faust0z.BookLibraryAPI.dto.BookDTO;
+import com.faust0z.BookLibraryAPI.dto.CreateBookDTO;
+import com.faust0z.BookLibraryAPI.service.BookService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RestController

@@ -1,9 +1,9 @@
-package com.faust0z.proj6.service;
+package com.faust0z.BookLibraryAPI.service;
 
-import com.faust0z.proj6.dto.CreateUserDTO;
-import com.faust0z.proj6.dto.UserDTO;
-import com.faust0z.proj6.model.User;
-import com.faust0z.proj6.repository.UserRepository;
+import com.faust0z.BookLibraryAPI.dto.CreateUserDTO;
+import com.faust0z.BookLibraryAPI.dto.UserDTO;
+import com.faust0z.BookLibraryAPI.model.User;
+import com.faust0z.BookLibraryAPI.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,12 +12,14 @@ import java.util.stream.Collectors;
 @Service
 public class UserService {
     private final UserRepository userRepository;
+
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
     /**
      * Gets all users from the database.
+     *
      * @return A list of UserDTOs.
      */
     public List<UserDTO> getAllUsers() {
@@ -29,6 +31,7 @@ public class UserService {
 
     /**
      * Creates a new Users.
+     *
      * @param userDTO The DTO containing the new Users's data.
      * @return The created Users's data as a DTO.
      */

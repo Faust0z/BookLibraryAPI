@@ -1,16 +1,16 @@
-package com.faust0z.proj6.service;
+package com.faust0z.BookLibraryAPI.service;
 
-import com.faust0z.proj6.dto.CreateLoanDTO;
-import com.faust0z.proj6.dto.LoanDTO;
-import com.faust0z.proj6.exception.BookUnavailableException;
-import com.faust0z.proj6.exception.LoanLimitExceededException;
-import com.faust0z.proj6.exception.ResourceNotFoundException;
-import com.faust0z.proj6.model.Book;
-import com.faust0z.proj6.model.Loan;
-import com.faust0z.proj6.model.User;
-import com.faust0z.proj6.repository.BookRepository;
-import com.faust0z.proj6.repository.LoanRepository;
-import com.faust0z.proj6.repository.UserRepository;
+import com.faust0z.BookLibraryAPI.dto.CreateLoanDTO;
+import com.faust0z.BookLibraryAPI.dto.LoanDTO;
+import com.faust0z.BookLibraryAPI.exception.BookUnavailableException;
+import com.faust0z.BookLibraryAPI.exception.LoanLimitExceededException;
+import com.faust0z.BookLibraryAPI.exception.ResourceNotFoundException;
+import com.faust0z.BookLibraryAPI.model.Book;
+import com.faust0z.BookLibraryAPI.model.Loan;
+import com.faust0z.BookLibraryAPI.model.User;
+import com.faust0z.BookLibraryAPI.repository.BookRepository;
+import com.faust0z.BookLibraryAPI.repository.LoanRepository;
+import com.faust0z.BookLibraryAPI.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

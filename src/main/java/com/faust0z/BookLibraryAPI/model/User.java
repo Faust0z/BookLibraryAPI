@@ -1,4 +1,4 @@
-package com.faust0z.proj6.model;
+package com.faust0z.BookLibraryAPI.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -22,6 +22,6 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
-     @OneToMany(mappedBy = "user")
-     private List<Loan> loans;
+    @OneToMany(mappedBy = "user")
+    private List<Loan> loans;
 }

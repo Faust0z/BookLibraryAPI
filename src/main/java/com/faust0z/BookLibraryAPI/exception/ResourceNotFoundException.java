@@ -1,4 +1,4 @@
-package com.faust0z.proj6.exception;
+package com.faust0z.BookLibraryAPI.exception;
 
 public class ResourceNotFoundException extends RuntimeException {
     public ResourceNotFoundException(String message) {

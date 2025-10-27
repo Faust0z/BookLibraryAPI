@@ -1,7 +1,8 @@
-package com.faust0z.proj6.dto;
+package com.faust0z.BookLibraryAPI.dto;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+
 import java.util.UUID;
 
 @Data

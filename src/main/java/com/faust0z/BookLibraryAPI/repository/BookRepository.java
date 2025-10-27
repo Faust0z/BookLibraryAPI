@@ -1,8 +1,9 @@
-package com.faust0z.proj6.repository;
+package com.faust0z.BookLibraryAPI.repository;
 
-import com.faust0z.proj6.model.Book;
+import com.faust0z.BookLibraryAPI.model.Book;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+
 import java.util.UUID;
 
 @Repository
