@@ -2,27 +2,33 @@ package com.faust0z.BookLibraryAPI.service;
 
 import com.faust0z.BookLibraryAPI.dto.BookDTO;
 import com.faust0z.BookLibraryAPI.dto.CreateBookDTO;
-import com.faust0z.BookLibraryAPI.model.Book;
+import com.faust0z.BookLibraryAPI.dto.UpdateBookDTO;
+import com.faust0z.BookLibraryAPI.entity.BookEntity;
+import com.faust0z.BookLibraryAPI.exception.ResourceNotFoundException;
 import com.faust0z.BookLibraryAPI.repository.BookRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
 public class BookService {
 
     private final BookRepository bookRepository;
+    private final ModelMapper modelMapper;
 
-    public BookService(BookRepository bookRepository) {
+    public BookService(BookRepository bookRepository, ModelMapper modelMapper) {
         this.bookRepository = bookRepository;
+        this.modelMapper = modelMapper;
     }
 
-    /**
-     * Retrieves all books from the database.
-     *
-     * @return A list of all books as BookDTOs.
-     */
+    private BookDTO convertToDto(BookEntity book) {
+        return modelMapper.map(book, BookDTO.class);
+    }
+
     public List<BookDTO> getAllBooks() {
         return bookRepository.findAll()
                 .stream()
@@ -30,33 +36,21 @@ public class BookService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Creates a new book and saves it to the database.
-     *
-     * @param bookDTO The DTO containing the new book's data.
-     * @return The created book's data as a DTO.
-     */
-    public BookDTO createBook(CreateBookDTO bookDTO) {
-        Book book = new Book();
-        book.setName(bookDTO.getName());
-        book.setAuthor(bookDTO.getAuthor());
-        book.setPublicationDate(bookDTO.getPublicationDate());
-        book.setCopies(bookDTO.getCopies());
+    @Transactional
+    public BookDTO createBook(CreateBookDTO dto) {
+        BookEntity book = modelMapper.map(dto, BookEntity.class);
 
-        Book savedBook = bookRepository.save(book);
+        BookEntity savedBook = bookRepository.save(book);
         return convertToDto(savedBook);
     }
 
-    /**
-     * Helper method to convert a Book entity to a BookDTO.
-     */
-    private BookDTO convertToDto(Book book) {
-        BookDTO dto = new BookDTO();
-        dto.setId(book.getId());
-        dto.setName(book.getName());
-        dto.setAuthor(book.getAuthor());
-        dto.setPublicationDate(book.getPublicationDate());
-        dto.setCopies(book.getCopies());
-        return dto;
+    @Transactional
+    public BookDTO updateBook(UUID id, UpdateBookDTO dto) {
+        BookEntity existingBook = bookRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Book not found with id: " + id));
+        modelMapper.map(dto, existingBook);
+
+        BookEntity updatedBook = bookRepository.save(existingBook);
+        return convertToDto(updatedBook);
     }
 }

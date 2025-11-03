@@ -2,15 +2,16 @@ package com.faust0z.BookLibraryAPI.service;
 
 import com.faust0z.BookLibraryAPI.dto.CreateLoanDTO;
 import com.faust0z.BookLibraryAPI.dto.LoanDTO;
+import com.faust0z.BookLibraryAPI.entity.BookEntity;
+import com.faust0z.BookLibraryAPI.entity.LoanEntity;
+import com.faust0z.BookLibraryAPI.entity.UserEntity;
 import com.faust0z.BookLibraryAPI.exception.BookUnavailableException;
 import com.faust0z.BookLibraryAPI.exception.LoanLimitExceededException;
 import com.faust0z.BookLibraryAPI.exception.ResourceNotFoundException;
-import com.faust0z.BookLibraryAPI.model.Book;
-import com.faust0z.BookLibraryAPI.model.Loan;
-import com.faust0z.BookLibraryAPI.model.User;
 import com.faust0z.BookLibraryAPI.repository.BookRepository;
 import com.faust0z.BookLibraryAPI.repository.LoanRepository;
 import com.faust0z.BookLibraryAPI.repository.UserRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,25 +26,43 @@ public class LoanService {
     private final LoanRepository loanRepository;
     private final BookRepository bookRepository;
     private final UserRepository userRepository;
+    private final ModelMapper modelMapper;
     private static final int MAX_ACTIVE_LOANS = 3;
+    private static final int LOAN_LIMIT_WEEKS = 2;
 
-    public LoanService(LoanRepository loanRepository, BookRepository bookRepository, UserRepository userRepository) {
+    public LoanService(LoanRepository loanRepository, BookRepository bookRepository, UserRepository userRepository, ModelMapper modelMapper) {
         this.loanRepository = loanRepository;
         this.bookRepository = bookRepository;
         this.userRepository = userRepository;
+        this.modelMapper = modelMapper;
     }
 
-    /**
-     * Creates a new loan, applying all business rules.
-     */
-    @Transactional // Ensures this is all-or-nothing
-    public LoanDTO createLoan(CreateLoanDTO createLoanDTO) {
-        // Find the user and book, or throw 404
-        User user = userRepository.findById(createLoanDTO.getUserId())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + createLoanDTO.getUserId()));
+    private LoanDTO convertToDto(LoanEntity loan) {
+        return modelMapper.map(loan, LoanDTO.class);
+    }
 
-        Book book = bookRepository.findById(createLoanDTO.getBookId())
-                .orElseThrow(() -> new ResourceNotFoundException("Book not found with id: " + createLoanDTO.getBookId()));
+    public List<LoanDTO> getLoans(UUID userId) {
+        List<LoanEntity> loans;
+
+        if (userId != null) {
+            loans = loanRepository.findByUserId(userId);
+        } else {
+            loans = loanRepository.findAll();
+        }
+
+        return loans.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public LoanDTO createLoan(CreateLoanDTO dto) {
+
+        UserEntity user = userRepository.findById(dto.getUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + dto.getUserId()));
+
+        BookEntity book = bookRepository.findById(dto.getBookId())
+                .orElseThrow(() -> new ResourceNotFoundException("Book not found with id: " + dto.getBookId()));
 
         // --- Business Rule #1 ---
         if (book.getCopies() <= 0) {
@@ -56,74 +75,33 @@ public class LoanService {
             throw new LoanLimitExceededException("User has reached the maximum loan limit of " + MAX_ACTIVE_LOANS);
         }
 
-        // All rules passed: create the loan
         book.setCopies(book.getCopies() - 1);
         bookRepository.save(book);
 
-        Loan loan = new Loan();
+        LoanEntity loan = new LoanEntity();
         loan.setUser(user);
         loan.setBook(book);
         loan.setLoanDate(LocalDate.now());
-        loan.setDueDate(LocalDate.now().plusWeeks(2)); // 2-week loan period
+        loan.setDueDate(LocalDate.now().plusWeeks(LOAN_LIMIT_WEEKS));
         loan.setReturnDate(null);
 
-        Loan savedLoan = loanRepository.save(loan);
+        LoanEntity savedLoan = loanRepository.save(loan);
         return convertToDto(savedLoan);
     }
 
-    /**
-     * Marks an existing loan as returned.
-     */
     @Transactional
     public LoanDTO returnLoan(UUID loanId) {
-        Loan loan = loanRepository.findById(loanId)
-                .orElseThrow(() -> new ResourceNotFoundException("Loan not found with id: " + loanId));
 
+        LoanEntity loan = loanRepository.findById(loanId)
+                .orElseThrow(() -> new ResourceNotFoundException("Loan not found with id: " + loanId));
         if (loan.getReturnDate() != null) {
             throw new BookUnavailableException("This loan has already been returned on " + loan.getReturnDate());
         }
-
-        // Mark as returned
         loan.setReturnDate(LocalDate.now());
-        Loan savedLoan = loanRepository.save(loan);
+        LoanEntity savedLoan = loanRepository.save(loan);
 
-        // Increment book copies
-        Book book = loan.getBook();
-        book.setCopies(book.getCopies() + 1);
-        bookRepository.save(book);
+        bookRepository.incrementCopies(savedLoan.getBook().getId());
 
         return convertToDto(savedLoan);
-    }
-
-    /**
-     * Gets all loans, optionally filtered by user.
-     */
-    public List<LoanDTO> getLoans(UUID userId) {
-        List<Loan> loans;
-        if (userId != null) {
-            // Find by user
-            loans = loanRepository.findByUserId(userId);
-        } else {
-            // Get all loans
-            loans = loanRepository.findAll();
-        }
-        return loans.stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * Helper method to convert a Loan entity to a LoanDTO.
-     */
-    private LoanDTO convertToDto(Loan loan) {
-        LoanDTO dto = new LoanDTO();
-        dto.setId(loan.getId());
-        dto.setLoanDate(loan.getLoanDate());
-        dto.setDueDate(loan.getDueDate());
-        dto.setReturnDate(loan.getReturnDate());
-        dto.setUserId(loan.getUser().getId());
-        dto.setBookId(loan.getBook().getId());
-        dto.setBookName(loan.getBook().getName()); // Add some useful context
-        return dto;
     }
 }

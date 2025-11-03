@@ -10,7 +10,6 @@ import java.time.LocalDate;
 
 @Data
 public class CreateBookDTO {
-
     @NotEmpty(message = "Book name cannot be empty.")
     private String name;
 
@@ -23,5 +22,5 @@ public class CreateBookDTO {
 
     @NotNull(message = "Number of copies is required.")
     @Min(value = 0, message = "Copies cannot be negative.")
-    private int copies;
+    private Integer copies;
 }

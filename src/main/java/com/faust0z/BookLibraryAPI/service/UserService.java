@@ -1,27 +1,35 @@
 package com.faust0z.BookLibraryAPI.service;
 
 import com.faust0z.BookLibraryAPI.dto.CreateUserDTO;
+import com.faust0z.BookLibraryAPI.dto.UpdateUserDTO;
 import com.faust0z.BookLibraryAPI.dto.UserDTO;
-import com.faust0z.BookLibraryAPI.model.User;
+import com.faust0z.BookLibraryAPI.entity.UserEntity;
+import com.faust0z.BookLibraryAPI.exception.ResourceNotFoundException;
 import com.faust0z.BookLibraryAPI.repository.UserRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
 public class UserService {
-    private final UserRepository userRepository;
 
-    public UserService(UserRepository userRepository) {
+    private final UserRepository userRepository;
+    private final ModelMapper modelMapper;
+
+
+    public UserService(UserRepository userRepository, ModelMapper modelMapper) {
         this.userRepository = userRepository;
+        this.modelMapper = modelMapper;
     }
 
-    /**
-     * Gets all users from the database.
-     *
-     * @return A list of UserDTOs.
-     */
+    private UserDTO convertToDto(UserEntity user) {
+        return modelMapper.map(user, UserDTO.class);
+    }
+
     public List<UserDTO> getAllUsers() {
         return userRepository.findAll()
                 .stream()
@@ -29,29 +37,22 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Creates a new Users.
-     *
-     * @param userDTO The DTO containing the new Users's data.
-     * @return The created Users's data as a DTO.
-     */
-    public UserDTO createUser(CreateUserDTO userDTO) {
-        User User = new User();
-        User.setName(userDTO.getName());
-        User.setEmail(userDTO.getEmail());
+    public UserDTO createUser(CreateUserDTO dto) {
 
-        User savedUser = userRepository.save(User);
+        UserEntity User = modelMapper.map(dto, UserEntity.class);
+
+        UserEntity savedUser = userRepository.save(User);
         return convertToDto(savedUser);
     }
 
-    /**
-     * Helper method to convert a Users entity to a UserDTO.
-     */
-    private UserDTO convertToDto(User User) {
-        UserDTO dto = new UserDTO();
-        dto.setId(User.getId());
-        dto.setName(User.getName());
-        dto.setEmail(User.getEmail());
-        return dto;
+    @Transactional
+    public UserDTO updateUser(UUID userId, UpdateUserDTO dto) {
+
+        UserEntity existingUser = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+        modelMapper.map(dto, existingUser);
+
+        UserEntity updatedUser = userRepository.save(existingUser);
+        return convertToDto(updatedUser);
     }
 }
