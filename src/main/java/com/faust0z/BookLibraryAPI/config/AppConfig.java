@@ -1,5 +1,7 @@
 package com.faust0z.BookLibraryAPI.config;
 
+import com.faust0z.BookLibraryAPI.dto.LoanDTO;
+import com.faust0z.BookLibraryAPI.entity.LoanEntity;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.context.annotation.Bean;
@@ -17,6 +19,13 @@ public class AppConfig {
         modelMapper.getConfiguration()
                 .setSkipNullEnabled(true)
                 .setMatchingStrategy(MatchingStrategies.STRICT);
+
+        modelMapper.createTypeMap(LoanEntity.class, LoanDTO.class)
+                .addMappings(mapper -> {
+                    mapper.map(src -> src.getUser().getId(), LoanDTO::setUserId);
+                    mapper.map(src -> src.getBook().getId(), LoanDTO::setBookId);
+                    mapper.map(src -> src.getBook().getName(), LoanDTO::setBookName);
+                });
 
         return modelMapper;
     }

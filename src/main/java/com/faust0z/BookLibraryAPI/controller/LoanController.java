@@ -34,8 +34,7 @@ public class LoanController {
     }
 
     @GetMapping
-    public ResponseEntity<List<LoanDTO>> getLoans(
-            @RequestParam(name = "userId", required = false) UUID userId) {
+    public ResponseEntity<List<LoanDTO>> getLoans(@RequestParam(name = "userId", required = false) UUID userId) {
         // This handles both GET /loans and GET /loans?userId=...
         List<LoanDTO> loans = loanService.getLoans(userId);
         return ResponseEntity.ok(loans);

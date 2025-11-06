@@ -45,15 +45,16 @@ public class LoanService {
         List<LoanEntity> loans;
 
         if (userId != null) {
-            loans = loanRepository.findByUserId(userId);
+            loans = loanRepository.findByUserIdWithUserAndBook(userId);
         } else {
-            loans = loanRepository.findAll();
+            loans = loanRepository.findAllWithUserAndBook();
         }
 
         return loans.stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
+
 
     @Transactional
     public LoanDTO createLoan(CreateLoanDTO dto) {
