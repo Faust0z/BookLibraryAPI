@@ -2,10 +2,12 @@ package com.faust0z.BookLibraryAPI.controller;
 
 import com.faust0z.BookLibraryAPI.dto.CreateUserDTO;
 import com.faust0z.BookLibraryAPI.dto.UserDTO;
+import com.faust0z.BookLibraryAPI.entity.UserEntity;
 import com.faust0z.BookLibraryAPI.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,6 +26,11 @@ public class UserController {
     public ResponseEntity<List<UserDTO>> getAllUsers() {
         List<UserDTO> users = userService.getAllUsers();
         return ResponseEntity.ok(users);
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<UserDTO> getMyProfile(@AuthenticationPrincipal UserEntity currentUser) {
+        return ResponseEntity.ok(userService.convertToDto(currentUser));
     }
 
     @PostMapping
