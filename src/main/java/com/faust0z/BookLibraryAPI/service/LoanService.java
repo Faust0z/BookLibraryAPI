@@ -41,18 +41,22 @@ public class LoanService {
         return modelMapper.map(loan, LoanDTO.class);
     }
 
-    public List<LoanDTO> getAllLoans(UUID userId) {
-        List<LoanEntity> loans;
-
-        if (userId != null) {
-            loans = loanRepository.findByUserIdWithUserAndBook(userId);
-        } else {
-            loans = loanRepository.findAllWithUserAndBook();
-        }
+    public List<LoanDTO> getAllLoans() {
+        List<LoanEntity> loans = loanRepository.findAllWithUserAndBook();
 
         return loans.stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
+
+    }
+
+    public List<LoanDTO> getLoansByUserId(UUID userId) {
+        List<LoanEntity> loans = loanRepository.findByUserIdWithUserAndBook(userId);
+
+        return loans.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+
     }
 
 

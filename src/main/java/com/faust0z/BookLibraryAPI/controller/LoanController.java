@@ -24,14 +24,16 @@ public class LoanController {
     }
 
     @GetMapping
-    public ResponseEntity<List<LoanDTO>> getAllLoans(@RequestParam(name = "userId", required = false) UUID userId) {
-        List<LoanDTO> loans = loanService.getAllLoans(userId);
-        return ResponseEntity.ok(loans);
+    public ResponseEntity<List<LoanDTO>> getLoans(@RequestParam(name = "userId", required = false) UUID userId) {
+        if (userId != null) {
+            return ResponseEntity.ok(loanService.getLoansByUserId(userId));
+        }
+        return ResponseEntity.ok(loanService.getAllLoans());
     }
 
     @GetMapping("/me")
     public ResponseEntity<List<LoanDTO>> getMyLoans(@AuthenticationPrincipal UserEntity currentUser) {
-        return ResponseEntity.ok(loanService.getAllLoans(currentUser.getId()));
+        return ResponseEntity.ok(loanService.getLoansByUserId(currentUser.getId()));
     }
 
     @PostMapping
