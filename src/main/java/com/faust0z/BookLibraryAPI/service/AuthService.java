@@ -55,7 +55,7 @@ public class AuthService {
         return new LoginResponseDTO(token, userDTO);
     }
 
-    @CacheEvict(value = "users", key = "'all'")
+    @CacheEvict(value = "users", key = "'list:all'")
     public UserDTO register(RegisterRequestDTO registerRequest) {
         if (userRepository.findByEmail(registerRequest.getEmail()).isPresent()) {
             throw new EmailAlreadyInUseException("Email address already in use.");

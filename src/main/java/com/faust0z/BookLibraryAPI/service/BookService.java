@@ -32,7 +32,7 @@ public class BookService {
         return modelMapper.map(book, BookDTO.class);
     }
 
-    @Cacheable(value = "books", key = "'all'")
+    @Cacheable(value = "books", key = "'list:all'")
     public List<BookDTO> getAllBooks() {
         return bookRepository.findAll()
                 .stream()
@@ -40,7 +40,7 @@ public class BookService {
                 .collect(Collectors.toList());
     }
 
-    @Cacheable(value = "books", key = "#bookId")
+    @Cacheable(value = "books", key = "'details:' + #bookId")
     public BookDTO getBookbyId(UUID bookId) {
         BookEntity book = bookRepository.findById(bookId)
                 .orElseThrow(() -> new ResourceNotFoundException("Book not found with id: " + bookId));
@@ -49,7 +49,7 @@ public class BookService {
     }
 
 
-    @CacheEvict(value = "books", key = "'all'")
+    @CacheEvict(value = "books", key = "'list:all'")
     @Transactional
     public BookDTO createBook(CreateBookDTO dto) {
         BookEntity book = modelMapper.map(dto, BookEntity.class);
@@ -59,8 +59,8 @@ public class BookService {
     }
 
     @Caching(evict = {
-            @CacheEvict(value = "books", key = "#bookId"),
-            @CacheEvict(value = "books", key = "'all'")
+            @CacheEvict(value = "books", key = "'details:' + #bookId"),
+            @CacheEvict(value = "books", key = "'list:all'")
     })
     @Transactional
     public BookDTO updateBook(UUID bookId, UpdateBookDTO dto) {

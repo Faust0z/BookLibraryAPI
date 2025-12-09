@@ -32,7 +32,7 @@ public class UserService {
         return modelMapper.map(user, UserDTO.class);
     }
 
-    @Cacheable(value = "users", key = "'all'")
+    @Cacheable(value = "users", key = "'list:all'")
     public List<UserDTO> getAllUsers() {
         return userRepository.findAll()
                 .stream()
@@ -40,7 +40,7 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
-    @Cacheable(value = "users", key = "#userId")
+    @Cacheable(value = "users", key = "'detail:' + #userId")
     public UserDTO getUserbyId(UUID userId) {
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
@@ -49,8 +49,8 @@ public class UserService {
     }
 
     @Caching(evict = {
-            @CacheEvict(value = "users", key = "#userId"),
-            @CacheEvict(value = "users", key = "'all'")
+            @CacheEvict(value = "users", key = "'detail:' + #userId"),
+            @CacheEvict(value = "users", key = "'list:all'")
     })
     @Transactional
     public UserDTO updateUser(UUID userId, UpdateUserDTO dto) {
