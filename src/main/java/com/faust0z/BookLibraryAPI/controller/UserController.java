@@ -39,7 +39,6 @@ public class UserController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "User found successfully"),
             @ApiResponse(responseCode = "404", description = "User not found")
-
     })
     @GetMapping("/{userId}")
     public ResponseEntity<UserDTO> getUserById(@PathVariable UUID userId) {
@@ -51,6 +50,9 @@ public class UserController {
             summary = "Get the current logged user",
             description = "This endpoint gets the data by using the JWT, so there are no parameters required"
     )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "User found successfully"),
+    })
     @GetMapping("/me")
     public ResponseEntity<UserDTO> getMyProfile(@AuthenticationPrincipal @Parameter(hidden = true) UserEntity currentUser) {
         return ResponseEntity.ok(userService.convertToDto(currentUser));

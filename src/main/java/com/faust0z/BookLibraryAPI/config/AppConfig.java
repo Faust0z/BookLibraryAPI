@@ -18,14 +18,14 @@ public class AppConfig {
 
         modelMapper.getConfiguration()
                 .setSkipNullEnabled(true)
-                .setMatchingStrategy(MatchingStrategies.STRICT);
+                .setMatchingStrategy(MatchingStrategies.STANDARD);
 
         modelMapper.createTypeMap(LoanEntity.class, LoanDTO.class)
                 .addMappings(mapper -> {
                     mapper.map(src -> src.getUser().getId(), LoanDTO::setUserId);
                     mapper.map(src -> src.getBook().getId(), LoanDTO::setBookId);
                     mapper.map(src -> src.getBook().getName(), LoanDTO::setBookName);
-                });
+                }); //TODO: this crashes when returning Loans but actually returns them
 
         return modelMapper;
     }

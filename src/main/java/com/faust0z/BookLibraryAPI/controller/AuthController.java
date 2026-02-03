@@ -29,7 +29,7 @@ public class AuthController {
     }
 
     @Operation(
-            summary = "login a new user",
+            summary = "Login a new user",
             description = "Returns a JWT token. Copy the 'token' string and paste it into the 'Authorize' button (top right) to access secured endpoints."
     )
     @ApiResponses({
