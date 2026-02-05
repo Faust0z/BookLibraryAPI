@@ -1,5 +1,6 @@
 package com.faust0z.BookLibraryAPI.service;
 
+import com.faust0z.BookLibraryAPI.dto.AdminLoanDTO;
 import com.faust0z.BookLibraryAPI.dto.CreateLoanDTO;
 import com.faust0z.BookLibraryAPI.dto.LoanDTO;
 import com.faust0z.BookLibraryAPI.entity.BookEntity;
@@ -44,26 +45,39 @@ public class LoanService {
         return modelMapper.map(loan, LoanDTO.class);
     }
 
+    private AdminLoanDTO convertToAdminDto(LoanEntity loan) {
+        return modelMapper.map(loan, AdminLoanDTO.class);
+    }
+
     @Cacheable(value = "loans", key = "'list:all'")
-    public List<LoanDTO> getAllLoans() {
+    public List<AdminLoanDTO> getAllLoans() {
         List<LoanEntity> loans = loanRepository.findAllWithUserAndBook();
 
         return loans.stream()
-                .map(this::convertToDto)
+                .map(this::convertToAdminDto)
                 .collect(Collectors.toList());
 
     }
 
     @Cacheable(value = "loans", key = "'details:' + #loanId")
-    public LoanDTO getLoanbyId(UUID loanId) {
+    public AdminLoanDTO getLoanbyId(UUID loanId) {
         LoanEntity loan = loanRepository.findById(loanId)
                 .orElseThrow(() -> new ResourceNotFoundException("Loan not found with id: " + loanId));
 
-        return convertToDto(loan);
+        return convertToAdminDto(loan);
     }
 
     @Cacheable(value = "loans", key = "'details:' + #userId")
-    public List<LoanDTO> getLoansByUserId(UUID userId) {
+    public List<AdminLoanDTO> getLoansByUserId(UUID userId) {
+        List<LoanEntity> loans = loanRepository.findByUserIdWithUserAndBook(userId);
+
+        return loans.stream()
+                .map(this::convertToAdminDto)
+                .collect(Collectors.toList());
+    }
+
+    @Cacheable(value = "user_loans", key = "#userId")
+    public List<LoanDTO> getMyLoans(UUID userId) {
         List<LoanEntity> loans = loanRepository.findByUserIdWithUserAndBook(userId);
 
         return loans.stream()

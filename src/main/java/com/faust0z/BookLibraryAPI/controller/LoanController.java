@@ -1,5 +1,6 @@
 package com.faust0z.BookLibraryAPI.controller;
 
+import com.faust0z.BookLibraryAPI.dto.AdminLoanDTO;
 import com.faust0z.BookLibraryAPI.dto.CreateLoanDTO;
 import com.faust0z.BookLibraryAPI.dto.LoanDTO;
 import com.faust0z.BookLibraryAPI.service.LoanService;
@@ -11,6 +12,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -34,8 +36,9 @@ public class LoanController {
             @ApiResponse(responseCode = "200", description = "User's loans found successfully"),
             @ApiResponse(responseCode = "404", description = "User not found")
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
-    public ResponseEntity<List<LoanDTO>> getLoans(@RequestParam(name = "userId", required = false) UUID userId) {
+    public ResponseEntity<List<AdminLoanDTO>> getLoans(@RequestParam(name = "userId", required = false) UUID userId) {
         if (userId != null) {
             return ResponseEntity.ok(loanService.getLoansByUserId(userId));
         }
@@ -48,8 +51,9 @@ public class LoanController {
             @ApiResponse(responseCode = "404", description = "Loan not found")
     })
     @GetMapping("/{loanId}")
-    public ResponseEntity<LoanDTO> getLoanById(@PathVariable UUID loanId) {
-        LoanDTO loan = loanService.getLoanbyId(loanId);
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<AdminLoanDTO> getLoanById(@PathVariable UUID loanId) {
+        AdminLoanDTO loan = loanService.getLoanbyId(loanId);
         return ResponseEntity.ok(loan);
     }
 
@@ -63,7 +67,7 @@ public class LoanController {
     @GetMapping("/me")
     public ResponseEntity<List<LoanDTO>> getMyLoans(@Parameter(hidden = true) @AuthenticationPrincipal UserDetails userDetails) {
         UUID userId = UUID.fromString(userDetails.getUsername());
-        return ResponseEntity.ok(loanService.getLoansByUserId(userId));
+        return ResponseEntity.ok(loanService.getMyLoans(userId));
     }
 
     @Operation(

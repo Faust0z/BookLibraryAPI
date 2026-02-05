@@ -1,5 +1,6 @@
 package com.faust0z.BookLibraryAPI.controller;
 
+import com.faust0z.BookLibraryAPI.dto.AdminBookDTO;
 import com.faust0z.BookLibraryAPI.dto.BookDTO;
 import com.faust0z.BookLibraryAPI.dto.CreateBookDTO;
 import com.faust0z.BookLibraryAPI.dto.UpdateBookDTO;
@@ -11,6 +12,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -50,9 +52,10 @@ public class BookController {
             @ApiResponse(responseCode = "201", description = "Book created successfully"),
             @ApiResponse(responseCode = "400", description = "Invalid input (e.g., future date, negative copies)")
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
-    public ResponseEntity<BookDTO> createBook(@Valid @RequestBody CreateBookDTO bookDTO) {
-        BookDTO createdBook = bookService.createBook(bookDTO);
+    public ResponseEntity<AdminBookDTO> createBook(@Valid @RequestBody CreateBookDTO bookDTO) {
+        AdminBookDTO createdBook = bookService.createBook(bookDTO);
         return new ResponseEntity<>(createdBook, HttpStatus.CREATED);
     }
 
@@ -62,9 +65,10 @@ public class BookController {
             @ApiResponse(responseCode = "400", description = "Invalid input (e.g., future date, negative copies)"),
             @ApiResponse(responseCode = "404", description = "Book not found (Invalid ID)")
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{bookId}")
-    public ResponseEntity<BookDTO> updateBook(@Valid @PathVariable("bookId") UUID bookId, @RequestBody UpdateBookDTO bookDTO) {
-        BookDTO updatedBook = bookService.updateBook(bookId, bookDTO);
+    public ResponseEntity<AdminBookDTO> updateBook(@Valid @PathVariable("bookId") UUID bookId, @RequestBody UpdateBookDTO bookDTO) {
+        AdminBookDTO updatedBook = bookService.updateBook(bookId, bookDTO);
         return ResponseEntity.ok(updatedBook);
     }
 }

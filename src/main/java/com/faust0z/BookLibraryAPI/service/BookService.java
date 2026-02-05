@@ -1,5 +1,6 @@
 package com.faust0z.BookLibraryAPI.service;
 
+import com.faust0z.BookLibraryAPI.dto.AdminBookDTO;
 import com.faust0z.BookLibraryAPI.dto.BookDTO;
 import com.faust0z.BookLibraryAPI.dto.CreateBookDTO;
 import com.faust0z.BookLibraryAPI.dto.UpdateBookDTO;
@@ -32,6 +33,10 @@ public class BookService {
         return modelMapper.map(book, BookDTO.class);
     }
 
+    private AdminBookDTO convertToAdminDto(BookEntity book) {
+        return modelMapper.map(book, AdminBookDTO.class);
+    }
+
     @Cacheable(value = "books", key = "'list:all'")
     public List<BookDTO> getAllBooks() {
         return bookRepository.findAll()
@@ -51,11 +56,11 @@ public class BookService {
 
     @CacheEvict(value = "books", key = "'list:all'")
     @Transactional
-    public BookDTO createBook(CreateBookDTO dto) {
+    public AdminBookDTO createBook(CreateBookDTO dto) {
         BookEntity book = modelMapper.map(dto, BookEntity.class);
 
         BookEntity savedBook = bookRepository.save(book);
-        return convertToDto(savedBook);
+        return convertToAdminDto(savedBook);
     }
 
     @Caching(evict = {
@@ -63,12 +68,12 @@ public class BookService {
             @CacheEvict(value = "books", key = "'list:all'")
     })
     @Transactional
-    public BookDTO updateBook(UUID bookId, UpdateBookDTO dto) {
+    public AdminBookDTO updateBook(UUID bookId, UpdateBookDTO dto) {
         BookEntity existingBook = bookRepository.findById(bookId)
                 .orElseThrow(() -> new ResourceNotFoundException("Book not found with id: " + bookId));
         modelMapper.map(dto, existingBook);
 
         BookEntity updatedBook = bookRepository.save(existingBook);
-        return convertToDto(updatedBook);
+        return convertToAdminDto(updatedBook);
     }
 }

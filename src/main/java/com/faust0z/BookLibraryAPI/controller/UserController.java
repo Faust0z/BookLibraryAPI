@@ -1,14 +1,18 @@
 package com.faust0z.BookLibraryAPI.controller;
 
+import com.faust0z.BookLibraryAPI.dto.AdminUserDTO;
+import com.faust0z.BookLibraryAPI.dto.MyUserDetailsDTO;
 import com.faust0z.BookLibraryAPI.dto.UpdateUserDTO;
 import com.faust0z.BookLibraryAPI.dto.UserDTO;
 import com.faust0z.BookLibraryAPI.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -28,9 +32,10 @@ public class UserController {
     }
 
     @Operation(summary = "Get all users")
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
-    public ResponseEntity<List<UserDTO>> getAllUsers() {
-        List<UserDTO> users = userService.getAllUsers();
+    public ResponseEntity<List<AdminUserDTO>> getAllUsers() {
+        List<AdminUserDTO> users = userService.getAllUsers();
         return ResponseEntity.ok(users);
     }
 
@@ -39,9 +44,10 @@ public class UserController {
             @ApiResponse(responseCode = "200", description = "User found successfully"),
             @ApiResponse(responseCode = "404", description = "User not found")
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{userId}")
-    public ResponseEntity<UserDTO> getUserById(@PathVariable UUID userId) {
-        UserDTO user = userService.getUserbyId(userId);
+    public ResponseEntity<AdminUserDTO> getUserById(@PathVariable UUID userId) {
+        AdminUserDTO user = userService.getUserbyId(userId);
         return ResponseEntity.ok(user);
     }
 
@@ -53,9 +59,9 @@ public class UserController {
             @ApiResponse(responseCode = "200", description = "User found successfully"),
     })
     @GetMapping("/me")
-    public ResponseEntity<UserDTO> getMyProfile(@AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<MyUserDetailsDTO> getMyProfile(@Parameter(hidden = true) @AuthenticationPrincipal UserDetails userDetails) {
         UUID userId = UUID.fromString(userDetails.getUsername());
-        UserDTO user = userService.getUserbyId(userId);
+        MyUserDetailsDTO user = userService.getMyDetails(userId);
 
         return ResponseEntity.ok(user);
     }
@@ -66,9 +72,8 @@ public class UserController {
             @ApiResponse(responseCode = "400", description = "Invalid input")
     })
     @PatchMapping("/me")
-    public ResponseEntity<UserDTO> updateMyProfile(
-            @AuthenticationPrincipal UserDetails userDetails,
-            @Valid @RequestBody UpdateUserDTO userData) {
+    public ResponseEntity<UserDTO> updateMyProfile(@Parameter(hidden = true) @AuthenticationPrincipal UserDetails userDetails,
+                                                   @Valid @RequestBody UpdateUserDTO userData) {
         UUID userId = UUID.fromString(userDetails.getUsername());
         UserDTO updatedUser = userService.updateUser(userId, userData);
 

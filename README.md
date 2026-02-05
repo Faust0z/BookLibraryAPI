@@ -35,11 +35,12 @@ everything in a container with `docker-compose --profile prod up --build`.
 
 ### Business rules
 
-1. Can’t borrow a loan if no copies of the wanted book are available. When books are borrowed, their copies get reduced. When
-   books are returned, their copies increase.
-2. Each user has a limit of 3 active loans
+1. Users can't borrow a loan if there are no available copies of the book. Each time a book is borrowed, their copies get reduced
+   by 1. When
+   books are returned, their copies increase by 1.
+2. Each user has a limit of 3 active loans.
+3. Users can have a USER or ADMIN role.
 
-Users can get their user info and loans by `/users/me` and `/loans/me` respectively, but they can also see the list of all users
-and all loans with the base route since there are no roles (on porpuse for simplicity).
+Users can get their user info and loans by `/users/me` and `/loans/me` respectively.
 
-![database-schema](database-schema.webp)
+![database-schema](database-schema.png)
