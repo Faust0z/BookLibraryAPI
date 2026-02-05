@@ -69,7 +69,7 @@ public class BookController {
     })
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{bookId}")
-    public ResponseEntity<AdminBookDTO> updateBook(@Valid @PathVariable("bookId") UUID bookId, @RequestBody UpdateBookDTO bookDTO) {
+    public ResponseEntity<AdminBookDTO> updateBook(@Valid @PathVariable("bookId") UUID bookId, @Valid @RequestBody UpdateBookDTO bookDTO) {
         AdminBookDTO updatedBook = bookService.updateBook(bookId, bookDTO);
         return ResponseEntity.ok(updatedBook);
     }

@@ -50,6 +50,7 @@ public class LoanService {
     }
 
     @Cacheable(value = "loans", key = "'list:all'")
+    @Transactional
     public List<AdminLoanDTO> getAllLoans() {
         List<LoanEntity> loans = loanRepository.findAllWithUserAndBook();
 
@@ -60,6 +61,7 @@ public class LoanService {
     }
 
     @Cacheable(value = "loans", key = "'details:' + #loanId")
+    @Transactional
     public AdminLoanDTO getLoanbyId(UUID loanId) {
         LoanEntity loan = loanRepository.findById(loanId)
                 .orElseThrow(() -> new ResourceNotFoundException("Loan not found with id: " + loanId));
@@ -68,6 +70,7 @@ public class LoanService {
     }
 
     @Cacheable(value = "loans", key = "'details:' + #userId")
+    @Transactional
     public List<AdminLoanDTO> getLoansByUserId(UUID userId) {
         List<LoanEntity> loans = loanRepository.findByUserIdWithUserAndBook(userId);
 
@@ -77,6 +80,7 @@ public class LoanService {
     }
 
     @Cacheable(value = "user_loans", key = "#userId")
+    @Transactional
     public List<LoanDTO> getMyLoans(UUID userId) {
         List<LoanEntity> loans = loanRepository.findByUserIdWithUserAndBook(userId);
 
