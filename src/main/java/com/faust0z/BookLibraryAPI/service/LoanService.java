@@ -9,10 +9,10 @@ import com.faust0z.BookLibraryAPI.entity.UserEntity;
 import com.faust0z.BookLibraryAPI.exception.LoanLimitExceededException;
 import com.faust0z.BookLibraryAPI.exception.ResourceNotFoundException;
 import com.faust0z.BookLibraryAPI.exception.ResourceUnavailableException;
+import com.faust0z.BookLibraryAPI.mapper.LoanMapper;
 import com.faust0z.BookLibraryAPI.repository.BookRepository;
 import com.faust0z.BookLibraryAPI.repository.LoanRepository;
 import com.faust0z.BookLibraryAPI.repository.UserRepository;
-import org.modelmapper.ModelMapper;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
@@ -22,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 public class LoanService {
@@ -30,34 +29,21 @@ public class LoanService {
     private final LoanRepository loanRepository;
     private final BookRepository bookRepository;
     private final UserRepository userRepository;
-    private final ModelMapper modelMapper;
+    private final LoanMapper loanMapper;
     private static final int MAX_ACTIVE_LOANS = 3;
     private static final int LOAN_LIMIT_WEEKS = 2;
 
-    public LoanService(LoanRepository loanRepository, BookRepository bookRepository, UserRepository userRepository, ModelMapper modelMapper) {
+    public LoanService(LoanRepository loanRepository, BookRepository bookRepository, UserRepository userRepository, LoanMapper loanMapper) {
         this.loanRepository = loanRepository;
         this.bookRepository = bookRepository;
         this.userRepository = userRepository;
-        this.modelMapper = modelMapper;
-    }
-
-    private LoanDTO convertToDto(LoanEntity loan) {
-        return modelMapper.map(loan, LoanDTO.class);
-    }
-
-    private AdminLoanDTO convertToAdminDto(LoanEntity loan) {
-        return modelMapper.map(loan, AdminLoanDTO.class);
+        this.loanMapper = loanMapper;
     }
 
     @Cacheable(value = "loans", key = "'list:all'")
     @Transactional
     public List<AdminLoanDTO> getAllLoans() {
-        List<LoanEntity> loans = loanRepository.findAllWithUserAndBook();
-
-        return loans.stream()
-                .map(this::convertToAdminDto)
-                .collect(Collectors.toList());
-
+        return loanMapper.toAdminDtoList(loanRepository.findAllWithUserAndBook());
     }
 
     @Cacheable(value = "loans", key = "'details:' + #loanId")
@@ -66,27 +52,19 @@ public class LoanService {
         LoanEntity loan = loanRepository.findById(loanId)
                 .orElseThrow(() -> new ResourceNotFoundException("Loan not found with id: " + loanId));
 
-        return convertToAdminDto(loan);
+        return loanMapper.toAdminDto(loan);
     }
 
     @Cacheable(value = "loans", key = "'details:' + #userId")
     @Transactional
     public List<AdminLoanDTO> getLoansByUserId(UUID userId) {
-        List<LoanEntity> loans = loanRepository.findByUserIdWithUserAndBook(userId);
-
-        return loans.stream()
-                .map(this::convertToAdminDto)
-                .collect(Collectors.toList());
+        return loanMapper.toAdminDtoList(loanRepository.findByUserIdWithUserAndBook(userId));
     }
 
     @Cacheable(value = "user_loans", key = "#userId")
     @Transactional
     public List<LoanDTO> getMyLoans(UUID userId) {
-        List<LoanEntity> loans = loanRepository.findByUserIdWithUserAndBook(userId);
-
-        return loans.stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
+        return loanMapper.toDtoList(loanRepository.findByUserIdWithUserAndBook(userId));
     }
 
 
@@ -127,7 +105,7 @@ public class LoanService {
         loan.setReturnDate(null);
 
         LoanEntity savedLoan = loanRepository.save(loan);
-        return convertToDto(savedLoan);
+        return loanMapper.toDto(savedLoan);
     }
 
     @Caching(evict = {
@@ -150,6 +128,6 @@ public class LoanService {
 
         bookRepository.incrementCopies(savedLoan.getBook().getId());
 
-        return convertToDto(savedLoan);
+        return loanMapper.toDto(savedLoan);
     }
 }

@@ -7,8 +7,8 @@ import com.faust0z.BookLibraryAPI.dto.UserDTO;
 import com.faust0z.BookLibraryAPI.entity.UserEntity;
 import com.faust0z.BookLibraryAPI.exception.EmailAlreadyInUseException;
 import com.faust0z.BookLibraryAPI.exception.ResourceUnavailableException;
+import com.faust0z.BookLibraryAPI.mapper.UserMapper;
 import com.faust0z.BookLibraryAPI.repository.UserRepository;
-import org.modelmapper.ModelMapper;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,15 +24,15 @@ public class AuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final ModelMapper modelMapper;
+    private final UserMapper userMapper;
 
     public AuthService(AuthenticationManager authenticationManager, JwtTokenProvider jwtTokenProvider,
-                       UserRepository userRepository, PasswordEncoder passwordEncoder, ModelMapper modelMapper) {
+                       UserRepository userRepository, PasswordEncoder passwordEncoder, UserMapper userMapper) {
         this.authenticationManager = authenticationManager;
         this.jwtTokenProvider = jwtTokenProvider;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
-        this.modelMapper = modelMapper;
+        this.userMapper = userMapper;
     }
 
     public LoginResponseDTO login(LoginRequestDTO loginRequest) {
@@ -50,7 +50,7 @@ public class AuthService {
         UserEntity userEntity = userRepository.findByEmail(userDetails.getUsername())
                 .orElseThrow(() -> new ResourceUnavailableException("User data not found after login."));
 
-        UserDTO userDTO = modelMapper.map(userEntity, UserDTO.class);
+        UserDTO userDTO = userMapper.toDto(userEntity);
 
         return new LoginResponseDTO(token, userDTO);
     }
@@ -61,13 +61,12 @@ public class AuthService {
             throw new EmailAlreadyInUseException("Email address already in use.");
         }
 
-        UserEntity user = new UserEntity();
-        user.setName(registerRequest.getName());
-        user.setEmail(registerRequest.getEmail().toLowerCase());
+        UserEntity user = userMapper.toEntity(registerRequest);
+        user.setEmail(user.getEmail().toLowerCase());
         user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
 
         UserEntity savedUser = userRepository.save(user);
 
-        return modelMapper.map(savedUser, UserDTO.class);
+        return userMapper.toDto(savedUser);
     }
 }
