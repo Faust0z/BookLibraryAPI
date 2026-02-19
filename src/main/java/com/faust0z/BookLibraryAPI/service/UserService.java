@@ -6,7 +6,7 @@ import com.faust0z.BookLibraryAPI.dto.UpdateUserDTO;
 import com.faust0z.BookLibraryAPI.dto.UpdateUserPasswordDTO;
 import com.faust0z.BookLibraryAPI.dto.UserDTO;
 import com.faust0z.BookLibraryAPI.entity.UserEntity;
-import com.faust0z.BookLibraryAPI.exception.InvalidPasswordException;
+import com.faust0z.BookLibraryAPI.exception.IncorrectPasswordException;
 import com.faust0z.BookLibraryAPI.exception.ResourceNotFoundException;
 import com.faust0z.BookLibraryAPI.exception.SamePasswordException;
 import com.faust0z.BookLibraryAPI.mapper.UserMapper;
@@ -76,7 +76,7 @@ public class UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
 
         if (!passwordEncoder.matches(dto.getCurrentPassword(), existingUser.getPassword())) {
-            throw new InvalidPasswordException("Provided current password is incorrect");
+            throw new IncorrectPasswordException("Provided current password is incorrect");
         }
 
         if (passwordEncoder.matches(dto.getNewPassword(), existingUser.getPassword())) {
