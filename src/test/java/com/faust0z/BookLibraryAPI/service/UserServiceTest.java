@@ -45,9 +45,9 @@ class UserServiceTest {
 
     @Test
     void getAllUsers_ShouldReturnListWithTwoDtos() {
-        UserEntity entity1 = new UserEntity();
-        UserEntity entity2 = new UserEntity();
-        List<UserEntity> entityList = List.of(entity1, entity2);
+        UserEntity userEntity1 = new UserEntity();
+        UserEntity userEntity2 = new UserEntity();
+        List<UserEntity> entityList = List.of(userEntity1, userEntity2);
 
         AdminUserDTO dto1 = new AdminUserDTO();
         AdminUserDTO dto2 = new AdminUserDTO();
@@ -67,13 +67,13 @@ class UserServiceTest {
     @Test
     void getUserById_WhenUserExists_ShouldReturnDTO() {
         UUID userId = UUID.randomUUID();
-        UserEntity entity = new UserEntity();
-        entity.setId(userId);
+        UserEntity userEntity = new UserEntity();
+        userEntity.setId(userId);
         AdminUserDTO expectedDto = new AdminUserDTO();
         expectedDto.setId(userId);
 
-        when(userRepository.findById(userId)).thenReturn(Optional.of(entity));
-        when(userMapper.toAdminDto(entity)).thenReturn(expectedDto);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(userEntity));
+        when(userMapper.toAdminDto(userEntity)).thenReturn(expectedDto);
 
         AdminUserDTO result = userService.getUserbyId(userId);
 
@@ -92,13 +92,13 @@ class UserServiceTest {
     @Test
     void getMyDetails_WhenUserExists_ShouldReturnDto() {
         UUID userId = UUID.randomUUID();
-        UserEntity entity = new UserEntity();
-        entity.setId(userId);
+        UserEntity userEntity = new UserEntity();
+        userEntity.setId(userId);
         MyUserDetailsDTO expectedDto = new MyUserDetailsDTO();
         expectedDto.setId(userId);
 
-        when(userRepository.findById(userId)).thenReturn(Optional.of(entity));
-        when(userMapper.toMyDetailsDto(entity)).thenReturn(expectedDto);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(userEntity));
+        when(userMapper.toMyDetailsDto(userEntity)).thenReturn(expectedDto);
 
         MyUserDetailsDTO result = userService.getMyDetails(userId);
 
@@ -117,20 +117,20 @@ class UserServiceTest {
     @Test
     void updateUser_WhenUserExists_ShouldReturnDto() {
         UUID userId = UUID.randomUUID();
-        UserEntity existingEntity = new UserEntity();
-        existingEntity.setId(userId);
+        UserEntity userEntity = new UserEntity();
+        userEntity.setId(userId);
         UpdateUserDTO updateDto = new UpdateUserDTO();
         updateDto.setName("Tom");
         UserDTO expectedDto = new UserDTO();
         expectedDto.setName("Tom");
 
-        when(userRepository.findById(userId)).thenReturn(Optional.of(existingEntity));
-        when(userRepository.save(existingEntity)).thenReturn(existingEntity);
-        when(userMapper.toDto(existingEntity)).thenReturn(expectedDto);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(userEntity));
+        when(userRepository.save(userEntity)).thenReturn(userEntity);
+        when(userMapper.toDto(userEntity)).thenReturn(expectedDto);
 
         UserDTO result = userService.updateUser(userId, updateDto);
 
-        verify(userMapper).updateUserFromDto(updateDto, existingEntity);
+        verify(userMapper).updateUserFromDto(updateDto, userEntity);
 
         assertThat(result).isNotNull();
         assertThat(result.getName()).isEqualTo(updateDto.getName());
@@ -152,9 +152,9 @@ class UserServiceTest {
         String newPass = "987654";
         String newPassHash = "hashOf987654";
 
-        UserEntity entity = new UserEntity();
-        entity.setId(userId);
-        entity.setPassword(oldPassHash);
+        UserEntity userEntity = new UserEntity();
+        userEntity.setId(userId);
+        userEntity.setPassword(oldPassHash);
 
         UpdateUserPasswordDTO updateDTO = new UpdateUserPasswordDTO();
         updateDTO.setCurrentPassword(oldPass);
@@ -163,18 +163,18 @@ class UserServiceTest {
         MyUserDetailsDTO expectedDto = new MyUserDetailsDTO();
         expectedDto.setId(userId);
 
-        when(userRepository.findById(userId)).thenReturn(Optional.of(entity));
+        when(userRepository.findById(userId)).thenReturn(Optional.of(userEntity));
         when(passwordEncoder.matches(oldPass, oldPassHash)).thenReturn(true);
         when(passwordEncoder.matches(newPass, oldPassHash)).thenReturn(false);
         when(passwordEncoder.encode(newPass)).thenReturn(newPassHash);
-        when(userRepository.save(any(UserEntity.class))).thenReturn(entity);
-        when(userMapper.toMyDetailsDto(entity)).thenReturn(expectedDto);
+        when(userRepository.save(any(UserEntity.class))).thenReturn(userEntity);
+        when(userMapper.toMyDetailsDto(userEntity)).thenReturn(expectedDto);
 
         MyUserDetailsDTO result = userService.updateUserPassword(userId, updateDTO);
 
         assertThat(result).isNotNull();
         verify(passwordEncoder).encode(newPass);
-        verify(userRepository).save(entity);
+        verify(userRepository).save(userEntity);
     }
 
     @Test
@@ -183,13 +183,13 @@ class UserServiceTest {
         String currentPass = "realHash";
         String wrongPass = "wrongHash";
 
-        UserEntity entity = new UserEntity();
-        entity.setPassword(currentPass);
+        UserEntity userEntity = new UserEntity();
+        userEntity.setPassword(currentPass);
 
         UpdateUserPasswordDTO updateDto = new UpdateUserPasswordDTO();
         updateDto.setCurrentPassword(wrongPass);
 
-        when(userRepository.findById(userId)).thenReturn(Optional.of(entity));
+        when(userRepository.findById(userId)).thenReturn(Optional.of(userEntity));
         when(passwordEncoder.matches(wrongPass, currentPass)).thenReturn(false);
 
         assertThatThrownBy(() -> userService.updateUserPassword(userId, updateDto))
@@ -202,14 +202,14 @@ class UserServiceTest {
         String oldPass = "123456";
         String oldPassHash = "hashOf123456";
 
-        UserEntity entity = new UserEntity();
-        entity.setPassword(oldPassHash);
+        UserEntity userEntity = new UserEntity();
+        userEntity.setPassword(oldPassHash);
 
         UpdateUserPasswordDTO dto = new UpdateUserPasswordDTO();
         dto.setCurrentPassword(oldPass);
         dto.setNewPassword(oldPass);
 
-        when(userRepository.findById(userId)).thenReturn(Optional.of(entity));
+        when(userRepository.findById(userId)).thenReturn(Optional.of(userEntity));
         when(passwordEncoder.matches(oldPass, oldPassHash)).thenReturn(true);
 
         assertThatThrownBy(() -> userService.updateUserPassword(userId, dto))
