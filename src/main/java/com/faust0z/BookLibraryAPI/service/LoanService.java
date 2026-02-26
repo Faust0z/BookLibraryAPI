@@ -13,6 +13,7 @@ import com.faust0z.BookLibraryAPI.mapper.LoanMapper;
 import com.faust0z.BookLibraryAPI.repository.BookRepository;
 import com.faust0z.BookLibraryAPI.repository.LoanRepository;
 import com.faust0z.BookLibraryAPI.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
@@ -23,6 +24,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
 public class LoanService {
 
@@ -105,6 +107,9 @@ public class LoanService {
         loan.setReturnDate(null);
 
         LoanEntity savedLoan = loanRepository.save(loan);
+
+        log.info("Loan created successfully: loanId={} for bookId={}", savedLoan.getId(), book.getId());
+
         return loanMapper.toDto(savedLoan);
     }
 
@@ -127,6 +132,8 @@ public class LoanService {
         LoanEntity savedLoan = loanRepository.save(loan);
 
         bookRepository.incrementCopies(savedLoan.getBook().getId());
+
+        log.info("Loan returned successfully: loanId={} for bookId={}", savedLoan.getId(), savedLoan.getBook().getId());
 
         return loanMapper.toDto(savedLoan);
     }

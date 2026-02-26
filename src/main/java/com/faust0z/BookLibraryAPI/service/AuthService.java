@@ -10,6 +10,7 @@ import com.faust0z.BookLibraryAPI.exception.ResourceUnavailableException;
 import com.faust0z.BookLibraryAPI.mapper.UserMapper;
 import com.faust0z.BookLibraryAPI.repository.UserRepository;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,6 +19,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 public class AuthService {
 
@@ -53,6 +55,8 @@ public class AuthService {
 
         UserDTO userDTO = userMapper.toDto(userEntity);
 
+        log.info("User logged successfully: name={}", userDTO.getName());
+
         return new LoginResponseDTO(token, userDTO);
     }
 
@@ -68,6 +72,8 @@ public class AuthService {
         user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
 
         UserEntity savedUser = userRepository.save(user);
+
+        log.info("User registered successfully: userId={} name={}", savedUser.getId(), savedUser.getName());
 
         return userMapper.toDto(savedUser);
     }
