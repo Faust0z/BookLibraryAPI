@@ -39,6 +39,8 @@ public class AuthService {
     }
 
     public LoginResponseDTO login(LoginRequestDTO loginRequest) {
+        log.debug("Attempting authentication for email: {}", loginRequest.getEmail().toLowerCase());
+
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         loginRequest.getEmail().toLowerCase(),
@@ -47,6 +49,7 @@ public class AuthService {
         );
 
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        log.debug("Authentication successful, generating token for user: {}", userDetails.getUsername());
 
         String token = jwtTokenProvider.generateToken(userDetails);
 
@@ -63,7 +66,10 @@ public class AuthService {
     @CacheEvict(value = "users", key = "'list:all'")
     @Transactional
     public UserDTO register(RegisterRequestDTO registerRequest) {
+        log.debug("Processing registration for email: {}", registerRequest.getEmail().toLowerCase());
+
         if (userRepository.findByEmail(registerRequest.getEmail()).isPresent()) {
+            log.debug("Registration failed: Email already in use: {}", registerRequest.getEmail());
             throw new EmailAlreadyInUseException("Email address already in use.");
         }
 
@@ -71,6 +77,7 @@ public class AuthService {
         user.setEmail(user.getEmail().toLowerCase());
         user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
 
+        log.debug("Saving new user to database: {}", user.getEmail());
         UserEntity savedUser = userRepository.save(user);
 
         log.info("User registered successfully: userId={} name={}", savedUser.getId(), savedUser.getName());

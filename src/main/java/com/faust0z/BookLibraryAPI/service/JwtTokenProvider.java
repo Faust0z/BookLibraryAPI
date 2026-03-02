@@ -4,6 +4,7 @@ import com.faust0z.BookLibraryAPI.entity.UserEntity;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,6 +17,7 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class JwtTokenProvider {
 
@@ -30,6 +32,8 @@ public class JwtTokenProvider {
 
     public String generateToken(UserDetails userDetails) {
         UserEntity user = (UserEntity) userDetails;
+        log.debug("Generating JWT token for userId: {}", user.getId());
+
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpirationMs);
 
@@ -44,7 +48,9 @@ public class JwtTokenProvider {
     }
 
     public boolean isTokenValid(String token) {
-        return !isTokenExpired(token);
+        boolean isValid = !isTokenExpired(token);
+        log.debug("Token validation check result: {}", isValid);
+        return isValid;
     }
 
     public List<String> extractAuthorities(String token) {

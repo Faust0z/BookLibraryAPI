@@ -8,6 +8,7 @@ import com.faust0z.BookLibraryAPI.entity.BookEntity;
 import com.faust0z.BookLibraryAPI.exception.ResourceNotFoundException;
 import com.faust0z.BookLibraryAPI.mapper.BookMapper;
 import com.faust0z.BookLibraryAPI.repository.BookRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
 public class BookService {
 
@@ -30,21 +32,23 @@ public class BookService {
 
     @Cacheable(value = "books", key = "'list:all'")
     public List<BookDTO> getAllBooks() {
+        log.debug("Fetching all books from database");
         return bookMapper.toDtoList(bookRepository.findAll());
     }
 
     @Cacheable(value = "books", key = "'details:' + #bookId")
     public BookDTO getBookbyId(UUID bookId) {
+        log.debug("Fetching book by id: {}", bookId);
         BookEntity book = bookRepository.findById(bookId)
                 .orElseThrow(() -> new ResourceNotFoundException("Book not found with id: " + bookId));
 
         return bookMapper.toDto(book);
     }
 
-
     @CacheEvict(value = "books", key = "'list:all'")
     @Transactional
     public AdminBookDTO createBook(CreateBookDTO dto) {
+        log.debug("Creating new book: {}", dto.getName());
         BookEntity book = bookMapper.toEntity(dto);
 
         BookEntity savedBook = bookRepository.save(book);
@@ -57,6 +61,7 @@ public class BookService {
     })
     @Transactional
     public AdminBookDTO updateBook(UUID bookId, UpdateBookDTO dto) {
+        log.debug("Updating book with id: {}", bookId);
         BookEntity existingBook = bookRepository.findById(bookId)
                 .orElseThrow(() -> new ResourceNotFoundException("Book not found with id: " + bookId));
         bookMapper.updateBookFromDto(dto, existingBook);

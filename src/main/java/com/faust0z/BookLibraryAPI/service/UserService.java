@@ -11,6 +11,7 @@ import com.faust0z.BookLibraryAPI.exception.ResourceNotFoundException;
 import com.faust0z.BookLibraryAPI.exception.SamePasswordException;
 import com.faust0z.BookLibraryAPI.mapper.UserMapper;
 import com.faust0z.BookLibraryAPI.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
 public class UserService {
 
@@ -62,6 +64,7 @@ public class UserService {
     })
     @Transactional
     public UserDTO updateUser(UUID userId, UpdateUserDTO dto) {
+        log.debug("Updating user details for userId: {}", userId);
         UserEntity existingUser = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
         userMapper.updateUserFromDto(dto, existingUser);
@@ -72,19 +75,23 @@ public class UserService {
 
     @Transactional
     public MyUserDetailsDTO updateUserPassword(UUID userId, UpdateUserPasswordDTO dto) {
+        log.debug("Processing password update for userId: {}", userId);
         UserEntity existingUser = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
 
+        log.debug("Verifying current password match");
         if (!passwordEncoder.matches(dto.getCurrentPassword(), existingUser.getPassword())) {
             throw new IncorrectPasswordException("Provided current password is incorrect");
         }
 
+        log.debug("Verifying new password is not identical to current");
         if (passwordEncoder.matches(dto.getNewPassword(), existingUser.getPassword())) {
             throw new SamePasswordException("New password cannot be the same as the old password");
         }
 
         existingUser.setPassword(passwordEncoder.encode(dto.getNewPassword()));
         UserEntity updatedUser = userRepository.save(existingUser);
+        log.debug("Password updated successfully for userId: {}", userId);
         return userMapper.toMyDetailsDto(updatedUser);
     }
 }

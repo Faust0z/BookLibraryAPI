@@ -45,6 +45,7 @@ public class LoanService {
     @Cacheable(value = "loans", key = "'list:all'")
     @Transactional
     public List<AdminLoanDTO> getAllLoans() {
+        log.debug("Fetching all loans from database");
         return loanMapper.toAdminDtoList(loanRepository.findAllWithUserAndBook());
     }
 
@@ -78,6 +79,7 @@ public class LoanService {
     })
     @Transactional
     public LoanDTO createLoan(CreateLoanDTO dto) {
+        log.debug("Attempting to create loan for userId: {} and bookId: {}", dto.getUserId(), dto.getBookId());
 
         UserEntity user = userRepository.findById(dto.getUserId())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + dto.getUserId()));
@@ -86,12 +88,15 @@ public class LoanService {
                 .orElseThrow(() -> new ResourceNotFoundException("Book not found with id: " + dto.getBookId()));
 
         // --- Business Rule #1 ---
+        log.debug("Checking book availability. Current copies: {}", book.getCopies());
         if (book.getCopies() <= 0) {
             throw new ResourceUnavailableException("Book is unavailable: " + book.getName());
         }
 
         // --- Business Rule #2 ---
         int activeLoans = loanRepository.countByUserIdAndReturnDateIsNull(user.getId());
+        log.debug("User currently has {} active loans", activeLoans);
+
         if (activeLoans >= MAX_ACTIVE_LOANS) {
             throw new LoanLimitExceededException("User has reached the maximum loan limit of " + MAX_ACTIVE_LOANS);
         }
@@ -122,10 +127,12 @@ public class LoanService {
     })
     @Transactional
     public LoanDTO returnLoan(UUID loanId) {
+        log.debug("Attempting to return loan with id: {}", loanId);
 
         LoanEntity loan = loanRepository.findById(loanId)
                 .orElseThrow(() -> new ResourceNotFoundException("Loan not found with id: " + loanId));
         if (loan.getReturnDate() != null) {
+            log.debug("Loan already returned on: {}", loan.getReturnDate());
             throw new ResourceUnavailableException("This loan has already been returned on " + loan.getReturnDate());
         }
         loan.setReturnDate(LocalDate.now());

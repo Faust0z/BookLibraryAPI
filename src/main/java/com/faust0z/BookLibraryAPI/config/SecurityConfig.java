@@ -3,6 +3,7 @@ package com.faust0z.BookLibraryAPI.config;
 import com.faust0z.BookLibraryAPI.filter.JwtAuthenticationFilter;
 import com.faust0z.BookLibraryAPI.filter.MdcLoggingFilter;
 import com.faust0z.BookLibraryAPI.service.CustomUserDetailsService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -17,7 +18,10 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer.FrameOptionsConfig;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -38,9 +42,23 @@ public class SecurityConfig {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
 
+    @Value("${spring.security.user.name}")
+    private String actuatorUsername;
+
+    @Value("${spring.security.user.password}")
+    private String actuatorPassword;
+
     @Bean
     @Order(1)
     public SecurityFilterChain actuatorSecurityFilterChain(HttpSecurity http) throws Exception {
+        UserDetails actuatorUser = User.builder()
+                .username(actuatorUsername)
+                .password(passwordEncoder.encode(actuatorPassword))
+                .roles("ADMIN")
+                .build();
+
+        InMemoryUserDetailsManager localUserManager = new InMemoryUserDetailsManager(actuatorUser);
+
         http
                 .securityMatcher("/actuator/**")
                 .authorizeHttpRequests(auth -> auth
@@ -48,7 +66,10 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .httpBasic(Customizer.withDefaults())
-                .csrf(AbstractHttpConfigurer::disable);
+                .userDetailsService(localUserManager)
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
         return http.build();
     }
 
