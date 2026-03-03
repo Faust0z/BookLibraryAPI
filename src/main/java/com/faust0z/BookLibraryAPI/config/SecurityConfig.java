@@ -42,10 +42,10 @@ public class SecurityConfig {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
 
-    @Value("${spring.security.user.name}")
+    @Value("${spring.security.user.name:user}")
     private String actuatorUsername;
 
-    @Value("${spring.security.user.password}")
+    @Value("${spring.security.user.password:pass}")
     private String actuatorPassword;
 
     @Bean
