@@ -89,9 +89,10 @@ public class UserService {
             throw new SamePasswordException("New password cannot be the same as the old password");
         }
 
-        existingUser.setPassword(passwordEncoder.encode(dto.getNewPassword()));
-        UserEntity updatedUser = userRepository.save(existingUser);
-        log.debug("Password updated successfully for userId: {}", userId);
-        return userMapper.toMyDetailsDto(updatedUser);
+//        existingUser.setPassword(passwordEncoder.encode(dto.getNewPassword()));
+        throw new UnsupportedOperationException("Password change currently disabled for the DEMO");
+//        UserEntity updatedUser = userRepository.save(existingUser);
+//        log.debug("Password updated successfully for userId: {}", userId);
+//        return userMapper.toMyDetailsDto(updatedUser);
     }
 }
