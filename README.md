@@ -1,22 +1,21 @@
 # Versión Español: API REST de Gestión de Biblioteca
 
-Una API REST de Gestión de Biblioteca construida con Spring Boot para gestionar usuarios, libros y préstamos de forma moderna,
-escalable y segura. _Construida con Spring Boot 3.5.7, Java 21, Docker, Flyway y Maven. Utiliza PostgreSQL (Supabase) para la base
-de datos y Redis (Upstash) para la caché._
+Una API REST de Gestión de Biblioteca para gestionar usuarios, libros y préstamos de forma moderna,
+escalable y segura. _Hecha con Spring Boot 3.5.7, Java 21, Docker, Flyway y Maven. Utiliza PostgreSQL para la base
+de datos y Redis para la caché._
 
 ### Características Principales
 
-- **Autenticación y Seguridad:** Spring Security con implementación de JWT sin estado (stateless). Los tokens expiran después de 1
+- **Autenticación y Seguridad:** Spring Security con implementación de JWT stateless. Los tokens expiran después de 1
   hora. Control de acceso basado en roles (USER vs ADMIN).
 - **Arquitectura:** Patrón estándar Controller-Service-Repository.
-- **Mapeo de Datos:** Utiliza MapStruct y DTOs para asegurar que las peticiones (requests) y respuestas (responses) estén
-  estructuradas, sean seguras en cuanto a tipos (type-safe) y de alto rendimiento.
+- **Mapeo de Datos:** Utiliza MapStruct y DTOs para asegurar un manejo estructurado, seguro y de alto rendimiento en las requests
+  y responses.
 - **Manejo de Errores:** `GlobalExceptionHandler` que mapea excepciones de negocio personalizadas a respuestas HTTP estándar.
-- **Caché y Rendimiento:** Integración con Redis para cachear los endpoints de mayor acceso.
-- **Auditoría de Base de Datos:** Las entidades base rastrean automáticamente las marcas de tiempo (timestamps) `created_at` y
-  `last_modified_at`.
+- **Caché y Rendimiento:** Integración con Redis para cachear todos los endpoints posibles para mejor velocidad.
+- **Auditoría de Base de Datos:** Diseño de entidades con trazabilidad a través de propiedades `created_at` y `last_modified_at`.
 - **Observabilidad:** Spring Boot Actuator habilitado para verificaciones de estado (health checks) en tiempo real, monitoreo de
-  métricas y nivelación dinámica de logs (integrado con Better Stack).
+  métricas y nivelación dinámica de logs.
 - **Documentación:** Swagger UI autogenerado para la exploración y prueba de endpoints.
 - **CI/CD:** Pipeline de pruebas automatizadas utilizando GitHub Actions.
 
@@ -57,7 +56,7 @@ Alternativamente, puedes ejecutar todo el stack (Base de Datos, Redis y Aplicaci
 
 ### Despliegue en Producción
 
-Esta aplicación está configurada para alojamiento en la nube (cloud hosting):
+Esta aplicación está configurada para alojarse en la nube:
 
 - Base de datos: Supabase (PostgreSQL con Transaction Pooler para soporte IPv4).
 - Caché: Upstash (Redis Serverless).
