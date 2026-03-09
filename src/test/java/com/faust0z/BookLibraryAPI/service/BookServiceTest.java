@@ -33,6 +33,9 @@ class BookServiceTest {
     @Mock
     private BookMapper bookMapper;
 
+    @Mock
+    private ExcelService excelService;
+
     @InjectMocks
     private BookService bookService;
 
@@ -55,6 +58,34 @@ class BookServiceTest {
                 .isNotNull()
                 .hasSize(2)
                 .containsExactly(dto1, dto2);
+    }
+
+    @Test
+    void exportBooksToExcel_ShouldReturnByteArray() {
+        List<BookEntity> entities = List.of(new BookEntity());
+        byte[] expectedContent = "excel data".getBytes();
+
+        when(bookRepository.findAll()).thenReturn(entities);
+        when(excelService.exportBooksToExcel(entities)).thenReturn(expectedContent);
+
+        byte[] result = bookService.exportBooksToExcel();
+
+        assertThat(result).isEqualTo(expectedContent);
+        verify(bookRepository).findAll();
+        verify(excelService).exportBooksToExcel(entities);
+    }
+
+    @Test
+    void importBooksFromExcel_ShouldSaveBooksAndReturnCount() throws Exception {
+        java.io.InputStream is = new java.io.ByteArrayInputStream(new byte[0]);
+        List<BookEntity> books = List.of(new BookEntity(), new BookEntity());
+
+        when(excelService.importBooksFromExcel(is)).thenReturn(books);
+
+        int count = bookService.importBooksFromExcel(is);
+
+        assertThat(count).isEqualTo(2);
+        verify(bookRepository).saveAll(books);
     }
 
     @Test
