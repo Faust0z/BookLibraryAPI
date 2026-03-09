@@ -1,5 +1,12 @@
-spring.jpa.show-sql=true
-spring.jpa.properties.hibernate.format_sql=true
-logging.level.com.faust0z.BookLibraryAPI=DEBUG
-logging.level.org.hibernate.SQL=DEBUG
-logging.level.org.springframework.cache=TRACE
+spring:
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+logging:
+  level:
+    com.faust0z.BookLibraryAPI: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.springframework.cache: TRACE

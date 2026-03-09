@@ -1,22 +1,50 @@
-spring.application.name=BookLibraryAPI
-logging.level.root=INFO
-spring.datasource.url=${DATABASE_URL:jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${POSTGRES_DB:library_db}}
-spring.datasource.username=${POSTGRES_USER:library_root}
-spring.datasource.password=${POSTGRES_PASSWORD:mypassword123}
-spring.datasource.driver-class-name=org.postgresql.Driver
-spring.jpa.hibernate.ddl-auto=validate
-spring.flyway.baseline-on-migrate=true
-spring.jpa.open-in-view=false
-server.shutdown=graceful
-spring.lifecycle.timeout-per-shutdown-phase=20s
-spring.data.redis.url=${REDIS_URL:redis://${REDIS_HOST:localhost}:${REDIS_PORT:6379}}
-app.jwt.secret=${JWT_SECRET:e525c1f68cd26d402974efc4f22de6f794bc8d699b13da93a7f61bd13bd7c9a4}
-app.jwt.expiration-ms=${JWT_EXPIRATION:3600000}
-spring.security.user.name=${ACTUATOR_USERNAME:user}
-spring.security.user.password=${ACTUATOR_PASSWORD:pass}
-management.endpoints.web.exposure.include=health, loggers
-management.endpoint.health.probes.enabled=true
-management.endpoint.health.show-details=when-authorized
-management.endpoint.health.roles=ADMIN
-# Required for SpringDoc 2.8.x compatibility to resolve ErrorViewResolver conflict
-spring.main.allow-bean-definition-overriding=true
+spring:
+  application:
+    name: BookLibraryAPI
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${POSTGRES_DB:library_db}}
+    username: ${POSTGRES_USER:library_root}
+    password: ${POSTGRES_PASSWORD:mypassword123}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    baseline-on-migrate: true
+  data:
+    redis:
+      url: ${REDIS_URL:redis://${REDIS_HOST:localhost}:${REDIS_PORT:6379}}
+  main:
+    # Required for SpringDoc 2.8.x compatibility to resolve ErrorViewResolver conflict
+    allow-bean-definition-overriding: true
+  security:
+    user:
+      name: ${ACTUATOR_USERNAME:user}
+      password: ${ACTUATOR_PASSWORD:pass}
+  lifecycle:
+    timeout-per-shutdown-phase: 20s
+
+server:
+  shutdown: graceful
+
+logging:
+  level:
+    root: INFO
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, loggers
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: when-authorized
+      roles: ADMIN
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:e525c1f68cd26d402974efc4f22de6f794bc8d699b13da93a7f61bd13bd7c9a4}
+    expiration-ms: ${JWT_EXPIRATION:3600000}
