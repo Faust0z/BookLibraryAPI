@@ -24,10 +24,12 @@ public class BookService {
 
     private final BookRepository bookRepository;
     private final BookMapper bookMapper;
+    private final ExcelService excelService;
 
-    public BookService(BookRepository bookRepository, BookMapper bookMapper) {
+    public BookService(BookRepository bookRepository, BookMapper bookMapper, ExcelService excelService) {
         this.bookRepository = bookRepository;
         this.bookMapper = bookMapper;
+        this.excelService = excelService;
     }
 
     @Cacheable(value = "books", key = "'list:all'")
@@ -69,4 +71,20 @@ public class BookService {
         BookEntity updatedBook = bookRepository.save(existingBook);
         return bookMapper.toAdminDto(updatedBook);
     }
+
+    public byte[] exportBooksToExcel() {
+        log.debug("Fetching all books for Excel export");
+        List<BookEntity> books = bookRepository.findAll();
+        return excelService.exportBooksToExcel(books);
+    }
+
+    @CacheEvict(value = "books", allEntries = true)
+    @Transactional
+    public int importBooksFromExcel(java.io.InputStream is) {
+        log.info("Starting bulk book import from Excel");
+        List<BookEntity> books = excelService.importBooksFromExcel(is);
+        bookRepository.saveAll(books);
+        return books.size();
+    }
+
 }
